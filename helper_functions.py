@@ -81,20 +81,20 @@ def model_builder(hp, norm=0):
     model.add(layers.Dropout(0.2))
     model.add(
         layers.Dense(
-            units=hp.Int("layer_1_units", min_value=200,
-                         max_value=200, step=1),
+            units=hp.Int("layer_1_units", min_value=50,
+                         max_value=50, step=50),
             activation="relu"
         )
     )
     model.add(layers.Dropout(0.5))
-    model.add(
-        layers.Dense(
-            units=hp.Int("layer_2_units", min_value=200,
-                         max_value=200, step=1),
-            activation="relu"
-        )
-    )
-    model.add(layers.Dropout(0.5))
+    # model.add(
+    #     layers.Dense(
+    #         units=hp.Int("layer_2_units", min_value=0,
+    #                      max_value=1000, step=50),
+    #         activation="relu"
+    #     )
+    # )
+    # model.add(layers.Dropout(0.5))
     # model.add(
     #     layers.Dense(
     #         units=hp.Int("layer_3_units", min_value=1, max_value=100, step=1),
@@ -125,6 +125,6 @@ def model_builder(hp, norm=0):
     # hp_optimizer = hp.Choice(
     #     'opimizer', values=["adam", "nadam"])
 
-    model.compile(loss='mean_absolute_error',
-                  optimizer=tf.keras.optimizers.Nadam(0.005))
+    model.compile(loss='mean_absolute_percentage_error',
+                  optimizer=tf.keras.optimizers.Nadam(0.0001))
     return model
