@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from pyparsing import col
 import seaborn as sns
 
 import tensorflow as tf
@@ -35,20 +36,28 @@ def categorize_ht(val):
 
 
 def clean_dataframe(df, label):
-    df = df.drop(columns="Name")
-    df = df.drop(df[df["Heat treatment 5 Temperature"] > 0].index)
-    df = df.drop(
-        columns=["Heat treatment 5 Temperature", "Heat treatment 5 Time"])
+    df = df.drop(columns=["Name"])
+    # df = df.drop(df[df["Heat treatment 5 Temperature"] > 0].index)
+    # df = df.drop(
+    #     columns=["Heat treatment 5 Temperature", "Heat treatment 5 Time"])
 
-    for i in range(1, 5):
-        col = "Heat treatment " + str(i) + " Temperature"
-        df[col] = df[col].apply(lambda x: categorize_ht(x))
+    # for i in range(1, 5):
+    #     col = "Heat treatment " + str(i) + " Temperature"
+    #     df[col] = df[col].apply(lambda x: categorize_ht(x))
 
-    for i in range(1, 5):
-        col = "Heat treatment " + str(i) + " Temperature"
-        stage = "stage_" + str(i)
-        df = pd.get_dummies(
-            df, columns=[col], prefix=stage, prefix_sep='_')
+    # for i in range(1, 5):
+    #     col = "Heat treatment " + str(i) + " Temperature"
+    #     stage = "stage_" + str(i)
+    #     df = pd.get_dummies(
+    #         df, columns=[col], prefix=stage, prefix_sep='_')
+
+    df = pd.get_dummies(df, columns=["Pressure treated"])
+    df = df.drop(columns=["Pressure treated_No"])
+
+    df = pd.get_dummies(df, columns=["Strengthening Precipitate Phase"])
+
+    df = pd.get_dummies(df, columns=["Powder processed"])
+    df = df.drop(columns=["Powder processed_No"])
 
     unused_labels = ['Tensile Strength, Yield',
                      'Elongation at Break', "Tensile Strength, Ultimate"]
@@ -81,8 +90,8 @@ def model_builder(hp, norm=0):
     model.add(layers.Dropout(0.2))
     model.add(
         layers.Dense(
-            units=hp.Int("layer_1_units", min_value=50,
-                         max_value=50, step=50),
+            units=hp.Int("layer_1_units", min_value=150,
+                         max_value=150, step=50),
             activation="relu"
         )
     )
@@ -125,6 +134,6 @@ def model_builder(hp, norm=0):
     # hp_optimizer = hp.Choice(
     #     'opimizer', values=["adam", "nadam"])
 
-    model.compile(loss='mean_absolute_percentage_error',
-                  optimizer=tf.keras.optimizers.Nadam(0.0001))
+    model.compile(loss='mean_absolute_error',
+                  optimizer=tf.keras.optimizers.Nadam(0.001))
     return model
