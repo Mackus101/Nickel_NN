@@ -137,3 +137,67 @@ def model_builder(hp, norm=0):
     model.compile(loss='mean_absolute_error',
                   optimizer=tf.keras.optimizers.Nadam(0.001))
     return model
+
+
+def model_builder_variable(hp, norm=0, test_layers=[1], dropout=0.2, layer_1_nodes=[50], layer_2_nodes=[50], layer_3_nodes=[50]):
+    model = tf.keras.Sequential()
+    model.add(norm)
+    model.add(layers.Dropout(0.2))
+    layer_test_space = hp.Choice("hidden_layers", values=test_layers)
+
+    nodes = []
+    nodes.append(hp.Choice("layer_1_nodes", values=layer_1_nodes))
+    nodes.append(hp.Choice("layer_2_nodes", values=layer_2_nodes))
+    nodes.append(hp.Choice("layer_3_nodes", values=layer_3_nodes))
+
+    for layer_num in range(1, layer_test_space+1):
+        model.add(
+            layers.Dense(
+                units=nodes[layer_num-1],
+                activation="relu"
+            )
+        )
+        model.add(layers.Dropout(dropout))
+    # model.add(
+    #     layers.Dense(
+    #         units=hp.Int("layer_2_units", min_value=0,
+    #                      max_value=1000, step=50),
+    #         activation="relu"
+    #     )
+    # )
+    # model.add(layers.Dropout(0.5))
+    # model.add(
+    #     layers.Dense(
+    #         units=hp.Int("layer_3_units", min_value=1, max_value=100, step=1),
+    #         activation="relu"
+    #     )
+    # )
+    # model.add(layers.Dropout(0.2))
+    # model.add(
+    #     layers.Dense(
+    #         units=hp.Int("layer_4_units", min_value=1, max_value=100, step=1),
+    #         activation="relu"
+    #     )
+    # )
+    # model.add(layers.Dropout(0.2))
+    # model.add(layers.Dropout(0.2))
+    # model.add(
+    #     layers.Dense(
+    #         units=hp.Int("layer_5_units", min_value=1, max_value=100, step=1),
+    #         activation="relu"
+    #     )
+    # )
+    # model.add(layers.Dropout(0.2))
+
+    model.add(layers.Dense(1))
+
+    # hp_learning_rate = hp.Choice('learning_rate', values=[1e-2, 1e-3, 1e-4])
+
+    # hp_optimizer = hp.Choice(
+    #     'opimizer', values=["adam", "nadam"])
+
+    model.compile(loss='mean_squared_error',
+                  optimizer=tf.keras.optimizers.Nadam(0.001),
+                  metrics=[tf.keras.metrics.RootMeanSquaredError(),
+                           tf.keras.losses.MeanAbsoluteError()])
+    return model
