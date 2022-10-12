@@ -22,6 +22,7 @@ def plot_loss(history):
   plt.ylabel('Error')
   plt.legend()
   plt.grid(True)
+  plt.savefig("pictures/underfit.pdf", bbox_inches='tight')
 
 
 def categorize_ht(val):
